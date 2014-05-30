@@ -1,0 +1,10 @@
+{
+  "name": "ws-rest-server",
+  "description": "School project about web services",
+  "version": "1.0",
+  "private": true,
+  "dependencies": {
+    "express": "3.8.1",
+    "express-xml-bodyparser": "*"
+  }
+}
