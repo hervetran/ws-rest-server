@@ -7,6 +7,6 @@
     "express": "3.8.1",
     "express-xml-bodyparser": "*",
     "mysql" : "*",
-    "node-easyxml" : "*"
+    "easyxml" : "*"
   }
 }
