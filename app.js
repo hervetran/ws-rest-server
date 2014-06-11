@@ -4,9 +4,20 @@ var express = require('express'),
   http = require('http'),
   server = http.createServer(app),
   xmlparser = require('express-xml-bodyparser'),
-  mysql = require('mysql');
+  mysql = require('mysql'),
+  easyxml = require('easyxml');
 
 var path = __dirname;
+
+// EasyXML settings
+easyxml.configure({
+  singularizeChildren: true,
+  underscoreAttributes: true,
+  rootElement: 'response',
+  dateFormat: 'ISO',
+  indent: 2,
+  manifest: true
+});
 
 // Set middlewares
 function bootApplication(app) {
@@ -54,7 +65,10 @@ function bootControllers(app, connection){
   app.get('/countries', function(req, res, next){
     connection.query('SELECT * FROM country', function(err, rows) {
       checkErrors(err, res, function(){
-        res.send(200, { rows: rows});
+        var data = { countries : rows };
+        res.header('Content-Type', 'text/xml');
+        var xml = easyxml.render(data);
+        res.send(200, xml);
       });
     });
   });
@@ -62,7 +76,10 @@ function bootControllers(app, connection){
   app.get('/countries/:countryId', function(req, res, next){
     connection.query('SELECT * FROM country WHERE id = '+ req.params.countryId, function(err, rows) {
       checkErrors(err, res, function(){
-        res.send(200, { rows: rows});
+        var data = { countries : rows };
+        res.header('Content-Type', 'text/xml');
+        var xml = easyxml.render(data);
+        res.send(200, xml);
       });
     });
   });
