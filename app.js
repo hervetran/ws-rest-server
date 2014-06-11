@@ -62,6 +62,7 @@ function bootControllers(app, connection){
     cb();
   }
 
+  //GET /countries
   app.get('/countries', function(req, res, next){
     connection.query('SELECT * FROM country', function(err, rows) {
       checkErrors(err, res, function(){
@@ -73,10 +74,59 @@ function bootControllers(app, connection){
     });
   });
 
+  //GET /countries/1
   app.get('/countries/:countryId', function(req, res, next){
     connection.query('SELECT * FROM country WHERE id = '+ req.params.countryId, function(err, rows) {
       checkErrors(err, res, function(){
         var data = { countries : rows };
+        res.header('Content-Type', 'text/xml');
+        var xml = easyxml.render(data);
+        res.send(200, xml);
+      });
+    });
+  });
+
+  //GET /places
+  app.get('/places', function(req, res, next){
+    connection.query('SELECT * FROM place', function(err, rows) {
+      checkErrors(err, res, function(){
+        var data = { places : rows };
+        res.header('Content-Type', 'text/xml');
+        var xml = easyxml.render(data);
+        res.send(200, xml);
+      });
+    });
+  });
+
+  //GET /places/1
+  app.get('/places/:placeId', function(req, res, next){
+    connection.query('SELECT * FROM place WHERE id = '+ req.params.countryId, function(err, rows) {
+      checkErrors(err, res, function(){
+        var data = { places : rows };
+        res.header('Content-Type', 'text/xml');
+        var xml = easyxml.render(data);
+        res.send(200, xml);
+      });
+    });
+  });
+
+  //GET /towns
+  app.get('/towns', function(req, res, next){
+    connection.query('SELECT * FROM town', function(err, rows) {
+      checkErrors(err, res, function(){
+        var data = { towns : rows };
+        res.header('Content-Type', 'text/xml');
+        var xml = easyxml.render(data);
+        res.send(200, xml);
+      });
+    });
+  });
+
+  //GET /towns/1
+  app.get('/towns/:townId', function(req, res, next){
+    connection.query('SELECT * FROM town WHERE id = '+ req.params.countryId, function(err, rows) {
+      checkErrors(err, res, function(){
+        var data = { towns : rows };
         res.header('Content-Type', 'text/xml');
         var xml = easyxml.render(data);
         res.send(200, xml);
