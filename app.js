@@ -4,56 +4,73 @@ var express = require('express'),
   http = require('http'),
   server = http.createServer(app),
   xmlparser = require('express-xml-bodyparser'),
-  sql = require('sql'),
   mysql = require('mysql');
 
-// Middlewares
-app.use(express.json());
-app.use(express.urlencoded());
-app.use(xmlparser());
+var path = __dirname;
 
-// SQL connection
-var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : 'root'
-});
+// Set middlewares
+function bootApplication(app) {
+  app.use(express.json());
+  app.use(express.urlencoded());
+  app.use(xmlparser());
+}
 
-connection.connect(function(err) {
-  if (err) {
-    console.error('[SQL] error connecting: ' + err.stack);
-    return;
-  }
+// Initialize database connection
+function bootDatabase(app, cb) {
 
-  console.log('[SQL] Connected as id ' + connection.threadId);
-});
-
-// Controllers
-app.get('/test', function(req, res, next) {
-
-  var town = sql.define({
-    name: 'town',
-    columns: ['id', 'name', 'population', 'country_id']
+  // SQL connection
+  var connection = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : 'root',
+    database : 'places'
   });
 
-  var query = town
-    .select(town.id)
-    .from(town)
-    .where(
-      town.name.equals('paris')
-    ).toQuery();
-
-  console.log(query.text);
-
-  connection.query(query.text, function(err, rows) {
-    if(err){
-      res.send(500, { msg: "ERROR!", err: err });
+  connection.connect(function(err) {
+    if (err) {
+      console.error('[SQL] error connecting: ' + err.stack);
       return;
     }
 
-    res.send(200, { msg: "OK!", rows: rows});
+    console.log('[SQL] Connected as id ' + connection.threadId);
+
+    bootControllers(app, connection);
+
   });
 
-});
+}
+
+// Set routes and controllers
+function bootControllers(app, connection){
+
+  function checkErrors(err, res, cb){
+    if(err) {
+      res.send(500, { err: err });
+      return;
+    }
+    cb();
+  }
+
+  app.get('/countries', function(req, res, next){
+    connection.query('SELECT * FROM country', function(err, rows) {
+      checkErrors(err, res, function(){
+        res.send(200, { rows: rows});
+      });
+    });
+  });
+
+  app.get('/countries/:countryId', function(req, res, next){
+    connection.query('SELECT * FROM country WHERE id = '+ req.params.countryId, function(err, rows) {
+      checkErrors(err, res, function(){
+        res.send(200, { rows: rows});
+      });
+    });
+  });
+
+}
+
+// Bootstrap application
+bootApplication(app);
+bootDatabase(app);
 
 server.listen(3000);
