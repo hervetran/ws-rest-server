@@ -100,7 +100,7 @@ function bootControllers(app, connection){
 
   //GET /places/1
   app.get('/places/:placeId', function(req, res, next){
-    connection.query('SELECT * FROM place WHERE id = '+ req.params.countryId, function(err, rows) {
+    connection.query('SELECT * FROM place WHERE id = '+ req.params.placeId, function(err, rows) {
       checkErrors(err, res, function(){
         var data = { places : rows };
         res.header('Content-Type', 'text/xml');
@@ -124,7 +124,7 @@ function bootControllers(app, connection){
 
   //GET /towns/1
   app.get('/towns/:townId', function(req, res, next){
-    connection.query('SELECT * FROM town WHERE id = '+ req.params.countryId, function(err, rows) {
+    connection.query('SELECT * FROM town WHERE id = '+ req.params.townId, function(err, rows) {
       checkErrors(err, res, function(){
         var data = { towns : rows };
         res.header('Content-Type', 'text/xml');
