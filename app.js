@@ -88,7 +88,11 @@ function bootControllers(app, connection){
 
   //GET /places
   app.get('/places', function(req, res, next){
-    connection.query('SELECT * FROM place', function(err, rows) {
+    var sqlQuery = 'SELECT * FROM place';
+    if(typeof req.query.f !== 'undefined') {
+      sqlQuery += " WHERE place.name LIKE '%" + req.query.f + "%'"
+    }
+    connection.query(sqlQuery, function(err, rows) {
       checkErrors(err, res, function(){
         var data = { places : rows };
         res.header('Content-Type', 'text/xml');
