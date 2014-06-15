@@ -86,6 +86,32 @@ function bootControllers(app, connection){
     });
   });
 
+  //POST /countries
+  app.post('/countries', function(req, res, next){
+    if(
+      typeof req.body.country === 'undefined'
+      || (typeof req.body.country.name === 'undefined' || req.body.country.name.length === 0)
+      || (typeof req.body.country.code === 'undefined' || req.body.country.code.length === 0)
+      || (typeof req.body.country.continent === 'undefined' || req.body.country.continent.length === 0)
+    ){
+      res.send(400, {message: "Missing parameters"});
+      return;
+    }
+    var country  = {
+      name: req.body.country.name[0],
+      code: req.body.country.code[0],
+      continent: req.body.country.continent[0]
+    };
+    connection.query('INSERT INTO country SET ?', country, function(err, result) {
+      checkErrors(err, res, function(){
+        var data = { countryId : result.insertId };
+        res.header('Content-Type', 'text/xml');
+        var xml = easyxml.render(data);
+        res.send(201, xml);
+      });
+    });
+  });
+
   //GET /places
   app.get('/places', function(req, res, next){
     var sqlQuery = 'SELECT * FROM place';
