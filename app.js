@@ -151,6 +151,28 @@ function bootControllers(app, connection){
     });
   });
 
+  //POST /places
+  app.post('/places', function(req, res, next){
+    checkParams(res, req.body.place, ['name', 'address', 'description', 'latitude', 'longitude', 'town_id'], function(){
+      var place  = {
+        name: req.body.place.name[0],
+        address: req.body.place.address[0],
+        description: req.body.place.description[0],
+        latitude: req.body.place.latitude[0],
+        longitude: req.body.place.longitude[0],
+        town_id: req.body.place.town_id[0]
+      };
+      connection.query('INSERT INTO place SET ?', place, function(err, result) {
+        checkErrors(err, res, function(){
+          var data = { placeId : result.insertId };
+          res.header('Content-Type', 'text/xml');
+          var xml = easyxml.render(data);
+          res.send(201, xml);
+        });
+      });
+    });
+  });
+
   //GET /towns
   app.get('/towns', function(req, res, next){
     connection.query('SELECT * FROM town', function(err, rows) {
@@ -171,6 +193,25 @@ function bootControllers(app, connection){
         res.header('Content-Type', 'text/xml');
         var xml = easyxml.render(data);
         res.send(200, xml);
+      });
+    });
+  });
+
+  //POST /towns
+  app.post('/towns', function(req, res, next){
+    checkParams(res, req.body.town, ['name', 'population', 'country_id'], function(){
+      var town  = {
+        name: req.body.town.name[0],
+        population: req.body.town.population[0],
+        country_id: req.body.town.country_id[0]
+      };
+      connection.query('INSERT INTO town SET ?', town, function(err, result) {
+        checkErrors(err, res, function(){
+          var data = { townId : result.insertId };
+          res.header('Content-Type', 'text/xml');
+          var xml = easyxml.render(data);
+          res.send(201, xml);
+        });
       });
     });
   });
