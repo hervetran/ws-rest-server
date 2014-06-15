@@ -28,7 +28,6 @@ function bootApplication(app) {
 
 // Initialize database connection
 function bootDatabase(app, cb) {
-
   // SQL connection
   var connection = mysql.createConnection({
     host     : 'localhost',
@@ -36,19 +35,14 @@ function bootDatabase(app, cb) {
     password : 'root',
     database : 'places'
   });
-
   connection.connect(function(err) {
     if (err) {
       console.error('[SQL] error connecting: ' + err.stack);
       return;
     }
-
     console.log('[SQL] Connected as id ' + connection.threadId);
-
     bootControllers(app, connection);
-
   });
-
 }
 
 // Set routes and controllers
@@ -123,6 +117,18 @@ function bootControllers(app, connection){
     });
   });
 
+  //DELETE /countries/1
+  app.delete('/countries/:countryId', function(req, res, next){
+    connection.query('DELETE FROM country WHERE id = '+ req.params.countryId, function(err, result) {
+      checkErrors(err, res, function(){
+        var data = { message : 'Deleted' };
+        res.header('Content-Type', 'text/xml');
+        var xml = easyxml.render(data);
+        res.send(200, xml);
+      });
+    });
+  });
+
   //GET /places
   app.get('/places', function(req, res, next){
     var sqlQuery = 'SELECT * FROM place';
@@ -173,6 +179,18 @@ function bootControllers(app, connection){
     });
   });
 
+  //DELETE /places/1
+  app.delete('/places/:placeId', function(req, res, next){
+    connection.query('DELETE FROM place WHERE id = '+ req.params.placeId, function(err, result) {
+      checkErrors(err, res, function(){
+        var data = { message : 'Deleted' };
+        res.header('Content-Type', 'text/xml');
+        var xml = easyxml.render(data);
+        res.send(200, xml);
+      });
+    });
+  });
+
   //GET /towns
   app.get('/towns', function(req, res, next){
     connection.query('SELECT * FROM town', function(err, rows) {
@@ -212,6 +230,18 @@ function bootControllers(app, connection){
           var xml = easyxml.render(data);
           res.send(201, xml);
         });
+      });
+    });
+  });
+
+  //DELETE /towns/1
+  app.delete('/towns/:townId', function(req, res, next){
+    connection.query('DELETE FROM town WHERE id = '+ req.params.townId, function(err, result) {
+      checkErrors(err, res, function(){
+        var data = { message : 'Deleted' };
+        res.header('Content-Type', 'text/xml');
+        var xml = easyxml.render(data);
+        res.send(200, xml);
       });
     });
   });
