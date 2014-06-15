@@ -1,7 +1,7 @@
 ws-rest-server
 ==============
 
-School project about web services.
+School project about web services. This is a small RESTFul API which works with MySQL & XML.
 
 ## Installation
 
