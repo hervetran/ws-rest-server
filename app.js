@@ -50,7 +50,10 @@ function bootControllers(app, connection){
 
   function checkErrors(err, res, cb){
     if(err) {
-      res.send(500, { err: err });
+      var message = { error : err };
+      res.header('Content-Type', 'text/xml');
+      var xml = easyxml.render(message);
+      res.send(500, xml);
       return;
     }
     cb();
@@ -68,7 +71,10 @@ function bootControllers(app, connection){
       }
     }
     if(err){
-      res.send(400, {message: "Missing parameters"});
+      var message = { message : "Missing parameters" };
+      res.header('Content-Type', 'text/xml');
+      var xml = easyxml.render(message);
+      res.send(400, xml);
       return;
     }
     cb();
