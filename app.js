@@ -9,21 +9,20 @@ var express = require('express'),
 
 var path = __dirname;
 
-// EasyXML settings
-easyxml.configure({
-  singularizeChildren: true,
-  underscoreAttributes: true,
-  rootElement: 'response',
-  dateFormat: 'ISO',
-  indent: 2,
-  manifest: true
-});
-
 // Set middlewares
 function bootApplication(app) {
   app.use(express.json());
   app.use(express.urlencoded());
   app.use(xmlparser());
+  // EasyXML settings
+  easyxml.configure({
+    singularizeChildren: true,
+    underscoreAttributes: true,
+    rootElement: 'response',
+    dateFormat: 'ISO',
+    indent: 2,
+    manifest: true
+  });
 }
 
 // Initialize database connection
@@ -54,6 +53,16 @@ function bootControllers(app, connection){
       res.header('Content-Type', 'text/xml');
       var xml = easyxml.render(message);
       res.send(500, xml);
+      return;
+    }
+    cb();
+  }
+
+  function checkIfEmpty(rows, res, cb){
+    if(rows.length === 0){
+      res.header('Content-Type', 'text/xml');
+      var xml = easyxml.render({message: "Not found"});
+      res.send(404, xml);
       return;
     }
     cb();
@@ -96,10 +105,12 @@ function bootControllers(app, connection){
   app.get('/countries/:countryId', function(req, res, next){
     connection.query('SELECT * FROM country WHERE id = '+ req.params.countryId, function(err, rows) {
       checkErrors(err, res, function(){
-        var data = { countries : rows };
-        res.header('Content-Type', 'text/xml');
-        var xml = easyxml.render(data);
-        res.send(200, xml);
+        checkIfEmpty(rows, res, function(){
+          var data = { countries : rows };
+          res.header('Content-Type', 'text/xml');
+          var xml = easyxml.render(data);
+          res.send(200, xml);
+        });
       });
     });
   });
@@ -125,7 +136,7 @@ function bootControllers(app, connection){
 
   //DELETE /countries/1
   app.delete('/countries/:countryId', function(req, res, next){
-    connection.query('DELETE FROM country WHERE id = '+ req.params.countryId, function(err, result) {
+    connection.query('DELETE FROM country WHERE id = ?', req.params.countryId, function(err, result) {
       checkErrors(err, res, function(){
         var data = { message : 'Deleted' };
         res.header('Content-Type', 'text/xml');
@@ -137,13 +148,35 @@ function bootControllers(app, connection){
 
   //GET /places
   app.get('/places', function(req, res, next){
-    var sqlQuery = 'SELECT * FROM place';
+    var sqlQuery = 'SELECT p.*, t.name AS town_name, t.population, c.name AS country_name, c.code, c.continent ';
+    sqlQuery += 'FROM place AS p, town AS t, country AS c ';
+    sqlQuery += 'WHERE p.town_id = t.id AND t.country_id = c.id';
     if(typeof req.query.f !== 'undefined') {
-      sqlQuery += " WHERE place.name LIKE '%" + req.query.f + "%'"
+      sqlQuery += " AND p.name LIKE '%" + req.query.f + "%'"
     }
     connection.query(sqlQuery, function(err, rows) {
       checkErrors(err, res, function(){
-        var data = { places : rows };
+        var data = {
+          places : []
+        };
+        for(var i=0; i<rows.length; i++){
+          data.places[i] = {
+            id: rows[i].id,
+            address: rows[i].address,
+            description: rows[i].description,
+            latitude: rows[i].latitude,
+            longitude: rows[i].longitude,
+            town: {
+              name: rows[i].town_name,
+              population: rows[i].population,
+              country: {
+                name: rows[i].country_name,
+                code: rows[i].code,
+                continent: rows[i].continent
+              }
+            }
+          };
+        }
         res.header('Content-Type', 'text/xml');
         var xml = easyxml.render(data);
         res.send(200, xml);
@@ -153,12 +186,34 @@ function bootControllers(app, connection){
 
   //GET /places/1
   app.get('/places/:placeId', function(req, res, next){
-    connection.query('SELECT * FROM place WHERE id = '+ req.params.placeId, function(err, rows) {
+    var sqlQuery = 'SELECT p.*, t.name AS town_name, t.population, c.name AS country_name, c.code, c.continent ';
+    sqlQuery += 'FROM place AS p, town AS t, country AS c ';
+    sqlQuery += 'WHERE p.town_id = t.id AND t.country_id = c.id AND p.id = ?';
+    connection.query(sqlQuery, req.params.placeId, function(err, rows) {
       checkErrors(err, res, function(){
-        var data = { places : rows };
-        res.header('Content-Type', 'text/xml');
-        var xml = easyxml.render(data);
-        res.send(200, xml);
+        checkIfEmpty(rows, res, function(){
+          var data = {
+            places : [{
+              id: rows[0].id,
+              address: rows[0].address,
+              description: rows[0].description,
+              latitude: rows[0].latitude,
+              longitude: rows[0].longitude,
+              town: {
+                name: rows[0].town_name,
+                population: rows[0].population,
+                country: {
+                  name: rows[0].country_name,
+                  code: rows[0].code,
+                  continent: rows[0].continent
+                }
+              }
+            }]
+          };
+          res.header('Content-Type', 'text/xml');
+          var xml = easyxml.render(data);
+          res.send(200, xml);
+        });
       });
     });
   });
@@ -187,7 +242,7 @@ function bootControllers(app, connection){
 
   //DELETE /places/1
   app.delete('/places/:placeId', function(req, res, next){
-    connection.query('DELETE FROM place WHERE id = '+ req.params.placeId, function(err, result) {
+    connection.query('DELETE FROM place WHERE id = ?', req.params.placeId, function(err, result) {
       checkErrors(err, res, function(){
         var data = { message : 'Deleted' };
         res.header('Content-Type', 'text/xml');
@@ -199,9 +254,26 @@ function bootControllers(app, connection){
 
   //GET /towns
   app.get('/towns', function(req, res, next){
-    connection.query('SELECT * FROM town', function(err, rows) {
+    var sqlQuery = 'SELECT t.*, c.name AS country_name, c.code, c.continent ';
+    sqlQuery += 'FROM town AS t, country AS c ';
+    sqlQuery += 'WHERE t.country_id = c.id';
+    connection.query(sqlQuery, function(err, rows) {
       checkErrors(err, res, function(){
-        var data = { towns : rows };
+        var data = {
+          towns : []
+        };
+        for(var i=0; i<rows.length; i++){
+          data.towns[i] = {
+            id: rows[i].id,
+            name: rows[i].name,
+            population: rows[i].population,
+            country: {
+              name: rows[i].country_name,
+              code: rows[i].code,
+              continent: rows[i].continent
+            }
+          };
+        }
         res.header('Content-Type', 'text/xml');
         var xml = easyxml.render(data);
         res.send(200, xml);
@@ -211,12 +283,28 @@ function bootControllers(app, connection){
 
   //GET /towns/1
   app.get('/towns/:townId', function(req, res, next){
-    connection.query('SELECT * FROM town WHERE id = '+ req.params.townId, function(err, rows) {
+    var sqlQuery = 'SELECT t.*, c.name AS country_name, c.code, c.continent ';
+    sqlQuery += 'FROM town AS t, country AS c ';
+    sqlQuery += 'WHERE t.country_id = c.id AND t.id = ?';
+    connection.query(sqlQuery, req.params.townId, function(err, rows) {
       checkErrors(err, res, function(){
-        var data = { towns : rows };
-        res.header('Content-Type', 'text/xml');
-        var xml = easyxml.render(data);
-        res.send(200, xml);
+        checkIfEmpty(rows, res, function(){
+          var data = {
+            towns : [{
+              id: rows[0].id,
+              name: rows[0].name,
+              population: rows[0].population,
+              country: {
+                name: rows[0].country_name,
+                code: rows[0].code,
+                continent: rows[0].continent
+              }
+            }]
+          };
+          res.header('Content-Type', 'text/xml');
+          var xml = easyxml.render(data);
+          res.send(200, xml);
+        });
       });
     });
   });
@@ -242,7 +330,7 @@ function bootControllers(app, connection){
 
   //DELETE /towns/1
   app.delete('/towns/:townId', function(req, res, next){
-    connection.query('DELETE FROM town WHERE id = '+ req.params.townId, function(err, result) {
+    connection.query('DELETE FROM town WHERE id = ?', req.params.townId, function(err, result) {
       checkErrors(err, res, function(){
         var data = { message : 'Deleted' };
         res.header('Content-Type', 'text/xml');
