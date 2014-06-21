@@ -49,9 +49,8 @@ function bootControllers(app, connection){
 
   function checkErrors(err, res, cb){
     if(err) {
-      var message = { error : err };
       res.header('Content-Type', 'text/xml');
-      var xml = easyxml.render(message);
+      var xml = easyxml.render({error: err});
       res.send(500, xml);
       return;
     }
@@ -61,7 +60,7 @@ function bootControllers(app, connection){
   function checkIfEmpty(rows, res, cb){
     if(rows.length === 0){
       res.header('Content-Type', 'text/xml');
-      var xml = easyxml.render({message: "Not found"});
+      var xml = easyxml.render({error: "Not found"});
       res.send(404, xml);
       return;
     }
@@ -80,9 +79,8 @@ function bootControllers(app, connection){
       }
     }
     if(err){
-      var message = { message : "Missing parameters" };
       res.header('Content-Type', 'text/xml');
-      var xml = easyxml.render(message);
+      var xml = easyxml.render({erorr : "Missing parameters"});
       res.send(400, xml);
       return;
     }
@@ -240,6 +238,24 @@ function bootControllers(app, connection){
     });
   });
 
+  //PUT /places/1
+  app.put('/places/:placeId', function(req, res, next){
+    var place = {};
+    if (typeof req.body.place.name !== 'undefined') place.name = req.body.place.name[0];
+    if (typeof req.body.place.address !== 'undefined') place.address = req.body.place.address[0];
+    if (typeof req.body.place.description !== 'undefined') place.description = req.body.place.description[0];
+    if (typeof req.body.place.latitude !== 'undefined') place.latitude = req.body.place.latitude[0];
+    if (typeof req.body.place.longitude !== 'undefined') place.longitude = req.body.place.longitude[0]
+    if (typeof req.body.place.town_id !== 'undefined') place.town_id = req.body.place.town_id[0];
+    connection.query('UPDATE place SET ? WHERE id = ?', [place, req.params.placeId], function(err, result) {
+      checkErrors(err, res, function(){
+        res.header('Content-Type', 'text/xml');
+        var xml = easyxml.render({message:"Updated"});
+        res.send(200, xml);
+      });
+    });
+  });
+
   //DELETE /places/1
   app.delete('/places/:placeId', function(req, res, next){
     connection.query('DELETE FROM place WHERE id = ?', req.params.placeId, function(err, result) {
@@ -324,6 +340,21 @@ function bootControllers(app, connection){
           var xml = easyxml.render(data);
           res.send(201, xml);
         });
+      });
+    });
+  });
+
+  //PUT /towns/1
+  app.put('/towns/:townId', function(req, res, next){
+    var town = {};
+    if (typeof req.body.town.name !== 'undefined') town.name = req.body.town.name[0];
+    if (typeof req.body.town.population !== 'undefined') town.population = req.body.town.population[0];
+    if (typeof req.body.town.country_id !== 'undefined') town.country_id = req.body.town.country_id[0];
+    connection.query('UPDATE town SET ? WHERE id = ?', [town, req.params.townId], function(err, result) {
+      checkErrors(err, res, function(){
+        res.header('Content-Type', 'text/xml');
+        var xml = easyxml.render({message:"Updated"});
+        res.send(200, xml);
       });
     });
   });
