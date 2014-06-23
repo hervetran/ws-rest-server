@@ -160,6 +160,7 @@ function bootControllers(app, connection){
         for(var i=0; i<rows.length; i++){
           data.places[i] = {
             id: rows[i].id,
+            name: rows[i].name,
             address: rows[i].address,
             description: rows[i].description,
             latitude: rows[i].latitude,
@@ -184,7 +185,7 @@ function bootControllers(app, connection){
 
   //GET /places/1
   app.get('/places/:placeId', function(req, res, next){
-    var sqlQuery = 'SELECT p.*, t.name AS town_name, t.population, c.name AS country_name, c.code, c.continent ';
+    var sqlQuery = 'SELECT p.*, t.id AS town_id, t.name AS town_name, t.population, c.id AS country_id, c.name AS country_name, c.code, c.continent ';
     sqlQuery += 'FROM place AS p, town AS t, country AS c ';
     sqlQuery += 'WHERE p.town_id = t.id AND t.country_id = c.id AND p.id = ?';
     connection.query(sqlQuery, req.params.placeId, function(err, rows) {
@@ -193,14 +194,17 @@ function bootControllers(app, connection){
           var data = {
             places : [{
               id: rows[0].id,
+              name: rows[0].name,
               address: rows[0].address,
               description: rows[0].description,
               latitude: rows[0].latitude,
               longitude: rows[0].longitude,
               town: {
+                id: rows[0].town_id,
                 name: rows[0].town_name,
                 population: rows[0].population,
                 country: {
+                  id: rows[0].country_id,
                   name: rows[0].country_name,
                   code: rows[0].code,
                   continent: rows[0].continent
@@ -299,7 +303,7 @@ function bootControllers(app, connection){
 
   //GET /towns/1
   app.get('/towns/:townId', function(req, res, next){
-    var sqlQuery = 'SELECT t.*, c.name AS country_name, c.code, c.continent ';
+    var sqlQuery = 'SELECT t.*, c.id AS country_id, c.name AS country_name, c.code, c.continent ';
     sqlQuery += 'FROM town AS t, country AS c ';
     sqlQuery += 'WHERE t.country_id = c.id AND t.id = ?';
     connection.query(sqlQuery, req.params.townId, function(err, rows) {
@@ -311,6 +315,7 @@ function bootControllers(app, connection){
               name: rows[0].name,
               population: rows[0].population,
               country: {
+                id: rows[0].country_id,
                 name: rows[0].country_name,
                 code: rows[0].code,
                 continent: rows[0].continent
