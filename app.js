@@ -191,23 +191,24 @@ function bootControllers(app, connection){
     connection.query(sqlQuery, req.params.placeId, function(err, rows) {
       checkErrors(err, res, function(){
         checkIfEmpty(rows, res, function(){
+          var place = rows[0];
           var data = {
             places : [{
-              id: rows[0].id,
-              name: rows[0].name,
-              address: rows[0].address,
-              description: rows[0].description,
-              latitude: rows[0].latitude,
-              longitude: rows[0].longitude,
+              id: place.id,
+              name: place.name,
+              address: place.address,
+              description: place.description,
+              latitude: place.latitude,
+              longitude: place.longitude,
               town: {
-                id: rows[0].town_id,
-                name: rows[0].town_name,
-                population: rows[0].population,
+                id: place.town_id,
+                name: place.town_name,
+                population: place.population,
                 country: {
-                  id: rows[0].country_id,
-                  name: rows[0].country_name,
-                  code: rows[0].code,
-                  continent: rows[0].continent
+                  id: place.country_id,
+                  name: place.country_name,
+                  code: place.code,
+                  continent: place.continent
                 }
               }
             }]
@@ -222,14 +223,15 @@ function bootControllers(app, connection){
 
   //POST /places
   app.post('/places', function(req, res, next){
-    checkParams(res, req.body.place, ['name', 'address', 'description', 'latitude', 'longitude', 'town_id'], function(){
+    checkParams(res, req.body.opt, ['name', 'address', 'description', 'latitude', 'longitude', 'town_id'], function(){
+      var dataP = req.body.opt;
       var place  = {
-        name: req.body.place.name[0],
-        address: req.body.place.address[0],
-        description: req.body.place.description[0],
-        latitude: req.body.place.latitude[0],
-        longitude: req.body.place.longitude[0],
-        town_id: req.body.place.town_id[0]
+        name: dataP.name[0],
+        address: dataP.address[0],
+        description: dataP.description[0],
+        latitude: parseFloat(dataP.latitude[0]),
+        longitude: parseFloat(dataP.longitude[0]),
+        town_id: parseInt(dataP.town_id[0], 10)
       };
       connection.query('INSERT INTO place SET ?', place, function(err, result) {
         checkErrors(err, res, function(){

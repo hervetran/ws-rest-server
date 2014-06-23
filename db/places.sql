@@ -72,7 +72,7 @@ INSERT INTO `place` (`id`, `name`, `address`, `description`, `latitude`, `longit
 (1, 'Tour Eiffel', 'Champ de Mars, 5 Avenue Anatole France, 75007 Paris', 'Badass Tower.', 48.8584, 2.29448, 3),
 (2, 'ESGI', '21 rue Erard', 'YOLO school', 48.8461, 2.38548, 3),
 (3, 'Temple Bar', '16 Temple Bar', 'Cool brews', 53.345176, -6.265716, 5),
-(4, 'Cuba Libre', '3B River Valley Rd', 'Come ah!', 1.291023, 103.845278, 6);
+(4, 'Cuba Libre', '3B River Valley Rd', 'Come lah!', 1.291023, 103.845278, 6);
 
 -- --------------------------------------------------------
 
