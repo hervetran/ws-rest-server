@@ -41,7 +41,8 @@ CREATE TABLE `country` (
 
 INSERT INTO `country` (`id`, `name`, `code`, `continent`) VALUES
 (1, 'France', 'FR', 'Europe'),
-(2, 'Irlande', 'IE', 'Europe');
+(2, 'Ireland', 'IE', 'Europe'),
+(3, 'Singapore', 'SG', 'Asia');
 
 -- --------------------------------------------------------
 
@@ -68,7 +69,10 @@ CREATE TABLE `place` (
 --
 
 INSERT INTO `place` (`id`, `name`, `address`, `description`, `latitude`, `longitude`, `town_id`) VALUES
-(1, 'Tour Eiffel', 'Champ de Mars, 5 Avenue Anatole France, 75007 Paris', 'La tour Eiffel est une tour de fer puddlé de 324 mètres de hauteur située à Paris, à l’extrémité nord-ouest du parc du Champ-de-Mars en bordure de la Seine dans le 7ᵉ arrondissement.', 48.8584, 2.29448, 3);
+(1, 'Tour Eiffel', 'Champ de Mars, 5 Avenue Anatole France, 75007 Paris', 'Badass Tower.', 48.8584, 2.29448, 3),
+(2, 'ESGI', '21 rue Erard', 'YOLO school', 48.8461, 2.38548, 3),
+(3, 'Temple Bar', '16 Temple Bar', 'Cool brews', 53.345176, -6.265716, 5),
+(4, 'Cuba Libre', '3B River Valley Rd', 'Come ah!', 1.291023, 103.845278, 6);
 
 -- --------------------------------------------------------
 
@@ -94,7 +98,8 @@ CREATE TABLE `town` (
 INSERT INTO `town` (`id`, `name`, `population`, `country_id`) VALUES
 (3, 'Paris', 123456, 1),
 (4, 'Pontault-Combault', 232, 1),
-(5, 'Dublin', 34343, 2);
+(5, 'Dublin', 34343, 2),
+(6, 'Singapore', 9689878, 3);
 
 --
 -- Contraintes pour les tables exportées
