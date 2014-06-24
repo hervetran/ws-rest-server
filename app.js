@@ -115,11 +115,12 @@ function bootControllers(app, connection){
 
   //POST /countries
   app.post('/countries', function(req, res, next){
-    checkParams(res, req.body.country, ['name', 'code', 'continent'], function(){
+    checkParams(res, req.body.opt, ['name', 'code', 'continent'], function(){
+      var dataC = req.body.opt;
       var country  = {
-        name: req.body.country.name[0],
-        code: req.body.country.code[0],
-        continent: req.body.country.continent[0]
+        name: dataC.name[0],
+        code: dataC.code[0],
+        continent: dataC.continent[0]
       };
       connection.query('INSERT INTO country SET ?', country, function(err, result) {
         checkErrors(err, res, function(){
@@ -334,11 +335,12 @@ function bootControllers(app, connection){
 
   //POST /towns
   app.post('/towns', function(req, res, next){
-    checkParams(res, req.body.town, ['name', 'population', 'country_id'], function(){
+    checkParams(res, req.body.opt, ['name', 'population', 'country_id'], function(){
+      var dataT = req.body.opt;
       var town  = {
-        name: req.body.town.name[0],
-        population: req.body.town.population[0],
-        country_id: req.body.town.country_id[0]
+        name: dataT.name[0],
+        population: dataT.population[0],
+        country_id: dataT.country_id[0]
       };
       connection.query('INSERT INTO town SET ?', town, function(err, result) {
         checkErrors(err, res, function(){
