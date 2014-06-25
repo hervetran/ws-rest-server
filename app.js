@@ -153,6 +153,10 @@ function bootControllers(app, connection){
     if(typeof req.query.f !== 'undefined') {
       sqlQuery += " AND p.name LIKE '%" + req.query.f + "%'"
     }
+    if(typeof req.query.s !== 'undefined' && typeof req.query.c !== 'undefined') {
+      console.log(req.query.s);
+      console.log(req.query.c);
+    }
     connection.query(sqlQuery, function(err, rows) {
       checkErrors(err, res, function(){
         var data = {
