@@ -42,7 +42,8 @@ CREATE TABLE `country` (
 INSERT INTO `country` (`id`, `name`, `code`, `continent`) VALUES
 (1, 'France', 'FR', 'Europe'),
 (2, 'Ireland', 'IE', 'Europe'),
-(3, 'Singapore', 'SG', 'Asia');
+(3, 'Singapore', 'SG', 'Asia'),
+(4, 'Scotland', 'ST', 'Europe');
 
 -- --------------------------------------------------------
 
@@ -72,7 +73,9 @@ INSERT INTO `place` (`id`, `name`, `address`, `description`, `latitude`, `longit
 (1, 'Tour Eiffel', 'Champ de Mars, 5 Avenue Anatole France, 75007 Paris', 'Badass Tower.', 48.8584, 2.29448, 3),
 (2, 'ESGI', '21 rue Erard', 'YOLO school', 48.8461, 2.38548, 3),
 (3, 'Temple Bar', '16 Temple Bar', 'Cool brews', 53.345176, -6.265716, 5),
-(4, 'Cuba Libre', '3B River Valley Rd', 'Come lah!', 1.291023, 103.845278, 6);
+(4, 'Cuba Libre', '3B River Valley Rd', 'Come lah!', 1.291023, 103.845278, 6),
+(5, 'Beaugrenelle', '35 quai André Citroën', 'L\'ESGI, mais loin', 48.847339, 2.279451, 3),
+(6, 'Glasgow Science Centre', '50 Pacific Quay', 'Scotish Geode', 55.858542, -4.293802, 7);
 
 -- --------------------------------------------------------
 
@@ -96,10 +99,10 @@ CREATE TABLE `town` (
 --
 
 INSERT INTO `town` (`id`, `name`, `population`, `country_id`) VALUES
-(3, 'Paris', 123456, 1),
-(4, 'Pontault-Combault', 232, 1),
-(5, 'Dublin', 34343, 2),
-(6, 'Singapore', 9689878, 3);
+(3, 'Paris', 2211000000, 1),
+(5, 'Dublin', 527612, 2),
+(6, 'Singapore', 5312000000, 3),
+(7, 'Glasgow', 598830, 4);
 
 --
 -- Contraintes pour les tables exportées
